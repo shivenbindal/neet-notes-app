@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEET Notes Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 100px auto;
+            background: #f0f4f8;
+            text-align: center;
+        }
+        h1 { color: #2c3e50; }
+        input {
+            width: 80%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 12px 30px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #2980b9; }
+        #status { margin-top: 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>🧬 NEET Notes Generator</h1>
+    <p>Enter any biology topic to get detailed notes</p>
+    <input type="text" id="topic" placeholder="e.g. Human Reproduction, Photosynthesis..." />
+    <br>
+    <button onclick="generate()">Generate Notes</button>
+    <p id="status"></p>
+
+    <script>
+        async function generate() {
+            const topic = document.getElementById('topic').value;
+            if (!topic) return alert('Enter a topic first');
+            
+            document.getElementById('status').innerText = 'Generating... please wait';
+            
+            const res = await fetch('/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({topic: topic})
+            });
+            
+            const data = await res.json();
+            
+            const win = window.open('', '_blank');
+            win.document.write(data.html);
+        }
+    </script>
+</body>
+</html>
