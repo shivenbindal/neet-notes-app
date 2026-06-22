@@ -10,7 +10,7 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 @app.route("/")
 def home():
-    return app.send_static_file("index.html")
+    return open("index.html").read()
 
 @app.route("/generate", methods=["POST"])
 def generate():
