@@ -11,7 +11,7 @@ OPENROUTER_KEY = os.environ.get("OPENROUTER_KEY")
 
 @app.route("/")
 def home():
-    return open("index.html").read()
+    return open(os.path.join(os.path.dirname(__file__), "index.html")).read()
 
 @app.route("/generate", methods=["POST"])
 def generate():
