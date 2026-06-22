@@ -41,7 +41,7 @@ Return complete HTML only, no explanation."""
             "Content-Type": "application/json"
         },
         json={
-            "model": "mistralai/mistral-7b-instruct",
+            "model": "meta-llama/llama-3.2-3b-instruct:free",
             "max_tokens": 10000,
             "messages": [{"role": "user", "content": prompt}]
         }
