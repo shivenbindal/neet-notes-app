@@ -47,10 +47,10 @@ Return complete HTML only, no explanation."""
         }
     )
 
-   result = response.json()
-if "choices" not in result:
-    return jsonify({"error": str(result)}), 500
-html_output = result["choices"][0]["message"]["content"]
+    result = response.json()
+    if "choices" not in result:
+        return jsonify({"error": str(result)}), 500
+    html_output = result["choices"][0]["message"]["content"]
     html_output = html_output.replace("```html", "").replace("```", "")
     return jsonify({"html": html_output})
 
