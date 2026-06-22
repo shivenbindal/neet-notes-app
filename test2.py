@@ -1,17 +1,21 @@
 import os
-import time
-from flask import Flask, request, jsonify
+import random
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import requests as http
+from groq import Groq
 
 app = Flask(__name__)
 CORS(app)
 
-OPENROUTER_KEY = os.environ.get("OPENROUTER_KEY")
+keys = [
+    os.environ.get("GROQ_KEY_1"),
+    os.environ.get("GROQ_KEY_2"),
+    os.environ.get("GROQ_KEY_3"),
+]
 
 @app.route("/")
 def home():
-    return open(os.path.join(os.path.dirname(__file__), "index.html")).read()
+    return send_from_directory(".", "index.html")
 
 @app.route("/generate", methods=["POST"])
 def generate():
@@ -34,25 +38,22 @@ Return ONLY a complete HTML page with these requirements:
 
 Return complete HTML only, no explanation."""
 
-    response = http.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_KEY}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "model": "meta-llama/llama-3.2-3b-instruct:free",
-            "max_tokens": 10000,
-            "messages": [{"role": "user", "content": prompt}]
-        }
-    )
+    random.shuffle(keys)
+    for key in keys:
+        try:
+            client = Groq(api_key=key)
+            chat = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                max_tokens=9000,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            html_output = chat.choices[0].message.content
+            html_output = html_output.replace("```html", "").replace("```", "")
+            return jsonify({"html": html_output})
+        except Exception:
+            continue
 
-    result = response.json()
-    if "choices" not in result:
-        return jsonify({"error": str(result)}), 500
-    html_output = result["choices"][0]["message"]["content"]
-    html_output = html_output.replace("```html", "").replace("```", "")
-    return jsonify({"html": html_output})
+    return jsonify({"error": "All keys rate limited. Try again later."}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
