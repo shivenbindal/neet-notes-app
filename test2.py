@@ -38,7 +38,7 @@ Return complete HTML only, no explanation."""}
 html_output = html_output.replace("```html", "").replace("```", "")
 return jsonify({"html": html_output})
     
-Add a fixed back button at top-left that says "← New Topic" and links back to "/"
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
