@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Practice Questions</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0f0f13; color: #e8e8f0; min-height: 100vh; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .topbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid #1e1e2e; }
+    .brand { font-size: 18px; font-weight: bold; color: #fff; }
+    .brand span { color: #7F77DD; }
+    a.back { color: #7F77DD; text-decoration: none; font-size: 14px; }
+
+    .hero { text-align: center; padding: 2.5rem 1rem 1.5rem; }
+    .hero h1 { font-size: 28px; font-weight: bold; color: #fff; margin-bottom: 8px; }
+    .hero p { font-size: 14px; color: #888; margin-bottom: 1.5rem; }
+
+    .exam-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 1.5rem; }
+    .tab { padding: 10px 24px; border-radius: 999px; font-size: 14px; font-weight: bold; cursor: pointer; border: 1.5px solid #2a2a3a; background: #1a1a24; color: #aaa; transition: all 0.2s; }
+    .tab.active-neet { border-color: #7F77DD; color: #7F77DD; background: #1e1a3a; }
+    .tab.active-jee { border-color: #00B76A; color: #00B76A; background: #0a1f14; }
+    .tab.active-boards { border-color: #E08A00; color: #E08A00; background: #1f1500; }
+
+    .generate-btn { display: block; margin: 0 auto 2rem; padding: 14px 40px; background: #534AB7; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+    .generate-btn:hover { background: #7F77DD; transform: scale(1.02); }
+    .generate-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+    .loader { display: none; text-align: center; padding: 2rem; color: #7F77DD; font-size: 15px; }
+    .loader::after { content: ''; display: inline-block; width: 12px; height: 12px; border: 2px solid #7F77DD; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 8px; vertical-align: middle; }
+
+    #output { max-width: 800px; margin: 0 auto; padding: 0 1rem 3rem; }
+
+    footer { text-align: center; padding: 2rem; color: #333; font-size: 12px; border-top: 1px solid #1a1a24; }
+    footer span { color: #534AB7; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand"><span>ur</span> notes buddy</div>
+    <a class="back" href="/">← Home</a>
+  </div>
+
+  <div class="hero">
+    <h1 id="pageTitle">Practice Questions</h1>
+    <p id="pageSubtitle">Select exam type and generate questions</p>
+  </div>
+
+  <div class="exam-tabs">
+    <div class="tab active-neet" id="tab-neet" onclick="selectTab('neet')">🧬 NEET</div>
+    <div class="tab" id="tab-jee" onclick="selectTab('jee')">⚛️ JEE</div>
+    <div class="tab" id="tab-boards" onclick="selectTab('boards')">📋 Boards</div>
+  </div>
+
+  <button class="generate-btn" id="genBtn" onclick="generateQuestions()">Generate Questions</button>
+  <div class="loader" id="loader">Generating questions</div>
+  <div id="output"></div>
+
+  <footer>made with &#10084; by <span>Shiven Gupta</span></footer>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const topic = params.get('topic') || 'General Science';
+    document.getElementById('pageTitle').innerText = topic + ' — Practice';
+    document.getElementById('pageSubtitle').innerText = 'AI-generated practice questions for ' + topic;
+
+    let selectedTab = 'neet';
+
+    function selectTab(tab) {
+      selectedTab = tab;
+      ['neet','jee','boards'].forEach(t => {
+        document.getElementById('tab-' + t).className = 'tab';
+      });
+      document.getElementById('tab-' + tab).className = 'tab active-' + tab;
+    }
+
+    async function generateQuestions() {
+      document.getElementById('genBtn').disabled = true;
+      document.getElementById('genBtn').innerText = 'Generating...';
+      document.getElementById('loader').style.display = 'block';
+      document.getElementById('output').innerHTML = '';
+
+      const res = await fetch('/practice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic, exam: selectedTab })
+      });
+      const data = await res.json();
+
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('genBtn').disabled = false;
+      document.getElementById('genBtn').innerText = 'Generate Questions';
+
+      if (data.html) {
+        document.getElementById('output').innerHTML = data.html;
+      } else {
+        document.getElementById('output').innerHTML = '<p style="color:red">Error: ' + JSON.stringify(data) + '</p>';
+      }
+    }
+  </script>
+</body>
+</html>
