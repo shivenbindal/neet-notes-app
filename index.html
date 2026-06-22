@@ -1,63 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NEET Notes Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 100px auto;
-            background: #f0f4f8;
-            text-align: center;
-        }
-        h1 { color: #2c3e50; }
-        input {
-            width: 80%;
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #3498db;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        button {
-            padding: 12px 30px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover { background: #2980b9; }
-        #status { margin-top: 20px; color: #666; }
-    </style>
+  <title>ur notes buddy</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .hero { text-align: center; padding: 3rem 1rem 2rem; }
+    .logo { font-size: 32px; font-weight: bold; color: #2c3e50; margin-bottom: 8px; }
+    .logo span { color: #534AB7; }
+    .tagline { font-size: 16px; color: #666; margin-bottom: 2rem; }
+    .search-box { max-width: 560px; margin: 0 auto 1.5rem; display: flex; gap: 8px; }
+    .search-box input { flex: 1; padding: 12px 16px; font-size: 15px; border: 2px solid #ddd; border-radius: 12px; outline: none; }
+    .search-box input:focus { border-color: #534AB7; }
+    .search-box button { padding: 12px 20px; background: #534AB7; color: #fff; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; }
+    .search-box button:hover { background: #3C3489; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 2.5rem; }
+    .chip { padding: 6px 14px; border: 1.5px solid #ddd; border-radius: 999px; font-size: 13px; color: #555; cursor: pointer; background: #fff; }
+    .chip:hover { border-color: #534AB7; color: #534AB7; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; max-width: 600px; margin: 0 auto; padding: 0 1rem; }
+    .card { background: #fff; border: 1.5px solid #eee; border-radius: 12px; padding: 1rem; cursor: pointer; }
+    .card:hover { border-color: #534AB7; }
+    .card-title { font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 4px; }
+    .card-sub { font-size: 12px; color: #888; }
+  </style>
 </head>
 <body>
-    <h1>🧬 NEET Notes Generator</h1>
-    <p>Enter any biology topic to get detailed notes</p>
-    <input type="text" id="topic" placeholder="e.g. Human Reproduction, Photosynthesis..." />
-    <br>
-    <button onclick="generate()">Generate Notes</button>
-    <p id="status"></p>
+  <div class="hero">
+    <div class="logo"><span>ur</span> notes buddy</div>
+    <div class="tagline">Type any topic. Get beautiful, detailed notes instantly.</div>
 
-    <script>
-        async function generate() {
-            const topic = document.getElementById('topic').value;
-            if (!topic) return alert('Enter a topic first');
-            
-            document.getElementById('status').innerText = 'Generating... please wait';
-            
-            const res = await fetch('/generate', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({topic: topic})
-            });
-            
-            const data = await res.json();
-            
-            const win = window.open('', '_blank');
-            win.document.write(data.html);
-        }
-    </script>
+    <div class="search-box">
+      <input type="text" id="topicInput" placeholder="e.g. Photosynthesis, World War 2, Newton's Laws..." />
+      <button onclick="generateNotes()">Generate</button>
+    </div>
+
+    <div class="chips">
+      <div class="chip" onclick="setTopic('Human Reproduction')">Human Reproduction</div>
+      <div class="chip" onclick="setTopic('Photosynthesis')">Photosynthesis</div>
+      <div class="chip" onclick="setTopic('French Revolution')">French Revolution</div>
+      <div class="chip" onclick="setTopic('Organic Chemistry')">Organic Chemistry</div>
+      <div class="chip" onclick="setTopic('Newton\'s Laws')">Newton's Laws</div>
+      <div class="chip" onclick="setTopic('Cell Division')">Cell Division</div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card" onclick="setTopic('Digestive System')">
+      <div class="card-title">Biology</div>
+      <div class="card-sub">Class 11 & 12 topics</div>
+    </div>
+    <div class="card" onclick="setTopic('Electrochemistry')">
+      <div class="card-title">Chemistry</div>
+      <div class="card-sub">Reactions, bonds & more</div>
+    </div>
+    <div class="card" onclick="setTopic('Laws of Motion')">
+      <div class="card-title">Physics</div>
+      <div class="card-sub">Concepts & formulas</div>
+    </div>
+    <div class="card" onclick="setTopic('World War 2')">
+      <div class="card-title">Any subject</div>
+      <div class="card-sub">History, geo, economics...</div>
+    </div>
+  </div>
+
+  <script>
+    function setTopic(t) {
+      document.getElementById('topicInput').value = t;
+    }
+    async function generateNotes() {
+      const topic = document.getElementById('topicInput').value.trim();
+      if (!topic) { alert('Enter a topic first!'); return; }
+      document.querySelector('button').innerText = 'Generating...';
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({topic: topic})
+      });
+      const data = await res.json();
+      document.open();
+      document.write(data.html);
+      document.close();
+    }
+  </script>
 </body>
 </html>
