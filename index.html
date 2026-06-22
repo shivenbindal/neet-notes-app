@@ -7,17 +7,14 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #0f0f13; color: #e8e8f0; min-height: 100vh; }
-
     .topbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid #1e1e2e; }
     .brand { font-size: 18px; font-weight: bold; color: #fff; }
     .brand span { color: #7F77DD; }
     .credit { font-size: 12px; color: #555; }
-
     .hero { text-align: center; padding: 4rem 1rem 2rem; }
     .hero h1 { font-size: 42px; font-weight: bold; color: #fff; margin-bottom: 12px; }
     .hero h1 span { color: #7F77DD; }
     .hero p { font-size: 16px; color: #888; margin-bottom: 2.5rem; }
-
     .search-wrap { max-width: 580px; margin: 0 auto 1.5rem; display: flex; gap: 10px; }
     .search-wrap input { flex: 1; padding: 14px 18px; font-size: 15px; background: #1a1a24; border: 1.5px solid #2a2a3a; border-radius: 12px; color: #e8e8f0; outline: none; }
     .search-wrap input::placeholder { color: #555; }
@@ -25,20 +22,16 @@
     .search-wrap button { padding: 14px 24px; background: #534AB7; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; }
     .search-wrap button:hover { background: #7F77DD; }
     .search-wrap button:disabled { background: #333; color: #666; cursor: not-allowed; }
-
     .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 3rem; }
     .chip { padding: 7px 16px; border: 1px solid #2a2a3a; border-radius: 999px; font-size: 13px; color: #aaa; cursor: pointer; background: #1a1a24; transition: all 0.15s; }
     .chip:hover { border-color: #7F77DD; color: #c4c0f5; background: #1e1a3a; }
-
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; max-width: 640px; margin: 0 auto 3rem; padding: 0 1rem; }
     .card { background: #1a1a24; border: 1px solid #2a2a3a; border-radius: 14px; padding: 1.2rem 1rem; cursor: pointer; transition: border-color 0.15s; }
     .card:hover { border-color: #534AB7; }
-    .card-icon { font-size: 22px; margin-bottom: 10px; color: #7F77DD; }
+    .card-icon { font-size: 22px; margin-bottom: 10px; }
     .card-title { font-size: 14px; font-weight: bold; color: #e8e8f0; margin-bottom: 4px; }
     .card-sub { font-size: 12px; color: #666; }
-
     .loader { display: none; text-align: center; padding: 2rem; color: #7F77DD; font-size: 15px; }
-
     footer { text-align: center; padding: 2rem; color: #333; font-size: 12px; border-top: 1px solid #1a1a24; }
     footer span { color: #534AB7; }
   </style>
@@ -53,12 +46,10 @@
   <div class="hero">
     <h1>Notes on <span>anything.</span></h1>
     <p>Type any topic. Get beautiful, detailed notes instantly — for free.</p>
-
     <div class="search-wrap">
       <input type="text" id="topicInput" placeholder="e.g. Photosynthesis, French Revolution, Quantum Physics..." />
       <button id="genBtn" onclick="generateNotes()">Generate</button>
     </div>
-
     <div class="chips">
       <div class="chip" onclick="setTopic('Human Reproduction')">Human Reproduction</div>
       <div class="chip" onclick="setTopic('Photosynthesis')">Photosynthesis</div>
@@ -103,6 +94,7 @@
       document.getElementById('topicInput').value = t;
       document.getElementById('topicInput').focus();
     }
+
     async function generateNotes() {
       const topic = document.getElementById('topicInput').value.trim();
       if (!topic) { alert('Enter a topic first!'); return; }
@@ -116,9 +108,16 @@
           body: JSON.stringify({ topic })
         });
         const data = await res.json();
-        document.open();
-        document.write(data.html);
-        document.close();
+        if (data.html) {
+          document.open();
+          document.write(data.html);
+          document.close();
+        } else {
+          alert('Error: ' + JSON.stringify(data));
+          document.getElementById('genBtn').disabled = false;
+          document.getElementById('genBtn').innerText = 'Generate';
+          document.getElementById('loader').style.display = 'none';
+        }
       } catch (e) {
         alert('Something went wrong. Try again.');
         document.getElementById('genBtn').disabled = false;
@@ -126,6 +125,7 @@
         document.getElementById('loader').style.display = 'none';
       }
     }
+
     document.getElementById('topicInput').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') generateNotes();
     });
